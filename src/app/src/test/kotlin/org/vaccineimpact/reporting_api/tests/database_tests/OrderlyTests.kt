@@ -16,13 +16,14 @@ class OrderlyTests : DatabaseTests()
     }
 
     @Test
-    fun `can get all published report names`()
+    fun `can get all published reports`()
     {
 
         insertReport("test", "va")
         insertReport("test", "vz")
         insertReport("test2", "vc")
         insertReport("test2", "vb")
+        insertReport("test2", "vd", published = false)
         insertReport("test3", "test3version", published = false)
 
         val sut = createSut()
