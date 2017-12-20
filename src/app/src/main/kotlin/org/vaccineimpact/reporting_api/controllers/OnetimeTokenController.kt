@@ -17,7 +17,7 @@ class OnetimeTokenController(context: ActionContext,
         val url = context.queryParams("url")
                 ?: throw MissingParameterError("url")
 
-        val profile = context.userProfile
+        val profile = context.userProfile!!
 
         val username = profile.id
         val permissions = profile.getAttribute("permissions").toString()

@@ -28,5 +28,12 @@ object ReportRouteConfig : RouteConfig
 
             Endpoint("/reports/:key/status/", "Report", "status")
                     .json()
-                    .secure(runReports))
+                    .secure(runReports),
+
+            Endpoint("/shiny/*", "Report", "shinyGet"),
+
+            Endpoint("/shiny/*", "Report", "shinyPost", method = HttpMethod.post)
+
+    )
+
 }

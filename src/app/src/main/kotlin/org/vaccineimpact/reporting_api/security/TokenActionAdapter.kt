@@ -40,7 +40,7 @@ class TokenActionAdapter(clients: List<MontaguCredentialClientWrapper>) : Defaul
         {
             addDefaultResponseHeaders(context.response, ContentTypes.json)
 
-            val profile = DirectActionContext(context).userProfile
+            val profile = DirectActionContext(context).userProfile!!
 
             val missingUrl = profile.getAttributeOrDefault(MISSING_URL, "")
 

@@ -2,6 +2,7 @@ package org.vaccineimpact.reporting_api.app_start
 
 import org.slf4j.LoggerFactory
 import org.vaccineimpact.reporting_api.addTrailingSlashes
+import org.vaccineimpact.reporting_api.controllers.WebsocketController
 import org.vaccineimpact.reporting_api.db.AppConfig
 import org.vaccineimpact.reporting_api.db.TokenStore
 import java.net.BindException
@@ -25,8 +26,9 @@ class MontaguReportingApi
     {
         waitForGoSignal()
         setupPort()
+        spark.Spark.webSocket("/v1/shiny/*", WebsocketController::class.java)
         spk.redirect.get("/", urlBase)
-        spk.before("*", ::addTrailingSlashes)
+//      /  spk.before("*", ::addTrailingSlashes)
         spk.options("*", { _, res ->
             res.header("Access-Control-Allow-Headers", "Authorization")
         })

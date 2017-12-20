@@ -23,9 +23,28 @@ class ReportController(context: ActionContext,
                     OrderlyServer(AppConfig(), KHttpClient()),
                     AppConfig())
 
+
+    fun shinyGet(): String
+    {
+        val path = context.request.splat().joinToString()
+        val res = khttp.get("${config["shiny.server"]}/$path",
+                context.request.headers().associateBy({ it }, { context.request.headers(it) }), stream = true)
+
+        return passThroughResponse(res)
+    }
+
+    fun shinyPost(): Any
+    {
+        val path = context.request.splat().joinToString()
+        val client = KHttpClient()
+        val res = client.post("${config["shiny.server"]}/$path",
+                context.request.headers().associateBy({ it }, { context.request.headers(it) }),
+                context.postData())
+        return passThroughResponse(res)
+    }
+
     fun run(): String
     {
-
         val name = context.params(":name")
         val response = orderlyServerAPI.post("/reports/$name/run/", context)
         return passThroughResponse(response)

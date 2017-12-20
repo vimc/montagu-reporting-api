@@ -9,6 +9,9 @@ abstract class Controller(val context: ActionContext)
     protected fun passThroughResponse(response: Response): String
     {
         context.setStatusCode(response.statusCode)
+        response.headers.map {
+            context.addResponseHeader(it.key, it.value)
+        }
         return response.text
     }
 }
