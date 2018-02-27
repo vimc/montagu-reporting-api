@@ -10,7 +10,6 @@ import spark.route.HttpMethod
 
 object VersionRouteConfig : RouteConfig
 {
-    private val readReports = setOf("*/reports.read")
     private val reviewReports = setOf("*/reports.review")
     private val artefactController = ArtefactController::class
     private val reportController = ReportController::class
@@ -38,28 +37,34 @@ object VersionRouteConfig : RouteConfig
             Endpoint("/reports/:name/versions/:version/artefacts/", artefactController, "get")
                     .json()
                     .transform()
-                    .secure(readReports),
+                    // more specific permisison checking in controller
+                    .secure(),
 
             Endpoint("/reports/:name/versions/:version/artefacts/:artefact/", artefactController, "download")
-                    .secure(readReports)
+                    // more specific permisison checking in controller
+                    .secure()
                     .allowParameterAuthentication(),
 
             Endpoint("/reports/:name/versions/:version/resources/", resourceController, "get")
                     .json()
                     .transform()
-                    .secure(readReports),
+                    // more specific permisison checking in controller
+                    .secure(),
 
             Endpoint("/reports/:name/versions/:version/resources/:resource/", resourceController, "download")
-                    .secure(readReports)
+                    // more specific permisison checking in controller
+                    .secure()
                     .allowParameterAuthentication(),
 
             Endpoint("/reports/:name/versions/:version/data/", dataController, "get")
                     .json()
                     .transform()
-                    .secure(readReports),
+                    // more specific permisison checking in controller
+                    .secure(),
 
             Endpoint("/reports/:name/versions/:version/data/:data/", dataController, "downloadData")
-                    .secure(readReports)
+                    // more specific permisison checking in controller
+                    .secure()
                     .allowParameterAuthentication()
     )
 }

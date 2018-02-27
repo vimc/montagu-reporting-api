@@ -23,12 +23,13 @@ class ResourceController(context: ActionContext,
 
     fun get(): JsonObject
     {
-        return orderly.getResources(context.params(":name"), context.params(":version"))
+        val name = context.authorizedReport()
+        return orderly.getResources(name, context.params(":version"))
     }
 
     fun download(): Boolean
     {
-        val name = context.params(":name")
+        val name = context.authorizedReport()
         val version = context.params(":version")
         val resourcename = parseRouteParamToFilepath(context.params(":resource"))
 

@@ -5,16 +5,18 @@ import org.vaccineimpact.reporting_api.app_start.RouteConfig
 import org.vaccineimpact.reporting_api.controllers.DataController
 
 object DataRouteConfig : RouteConfig {
-    private val readReports = setOf("*/reports.read")
+
     private val controller = DataController::class
 
     override val endpoints: List<EndpointDefinition> = listOf(
             Endpoint("/data/csv/:id/", controller, "downloadCSV", ContentTypes.csv)
-                    .secure(readReports)
+                    // more specific permisison checking in controller
+                    .secure()
                     .allowParameterAuthentication(),
 
             Endpoint("/data/rds/:id/", controller, "downloadRDS")
-                    .secure(readReports)
+                    .secure()
+                    // more specific permisison checking in controller
                     .allowParameterAuthentication()
     )
 }
