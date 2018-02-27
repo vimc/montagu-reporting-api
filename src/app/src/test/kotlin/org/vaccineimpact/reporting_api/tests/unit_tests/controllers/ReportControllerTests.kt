@@ -242,11 +242,4 @@ class ReportControllerTests : ControllerTest()
                 { sut.getZippedByNameAndVersion() })
     }
 
-    private fun assertThrowsMissingPermissionError(reportName: String, work: () -> Any)
-    {
-        assertThatThrownBy { work() }
-                .isInstanceOf(MissingRequiredPermissionError::class.java)
-                .hasMessageContaining("report:$reportName/reports.read")
-    }
-
 }
