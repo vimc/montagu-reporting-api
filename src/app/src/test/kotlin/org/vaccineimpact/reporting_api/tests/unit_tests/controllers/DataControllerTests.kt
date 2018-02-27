@@ -17,9 +17,6 @@ import org.vaccineimpact.reporting_api.errors.OrderlyFileNotFoundError
 
 class DataControllerTests : ControllerTest()
 {
-    private val mockConfig = mock<Config> {
-        on { this.get("orderly.root") } doReturn "root/"
-    }
 
     @Test
     fun `gets data for report`()
@@ -36,11 +33,27 @@ class DataControllerTests : ControllerTest()
         val actionContext = mock<ActionContext> {
             on { this.params(":name") } doReturn name
             on { this.params(":version") } doReturn version
+            on { this.permissions } doReturn permissionSetGlobal
         }
 
         val sut = DataController(actionContext, orderly, mock<FileSystem>(), mockConfig)
 
         assertThat(sut.get()).isEqualTo(data)
+    }
+
+    @Test
+    fun `can't get data for unauthorized report`()
+    {
+        val name = "testname"
+
+        val actionContext = mock<ActionContext> {
+            on { this.params(":name") } doReturn name
+            on { this.permissions } doReturn permissionSetForSingleReport
+        }
+
+        val sut = DataController(actionContext, mock(), mock<FileSystem>(), mockConfig)
+
+        assertThrowsMissingPermissionError(name, { sut.get() })
     }
 
     @Test
@@ -65,6 +78,7 @@ class DataControllerTests : ControllerTest()
             on { this.params(":version") } doReturn version
             on { this.params(":data") } doReturn datumname
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetGlobal
         }
 
         val sut = DataController(actionContext, orderly, fileSystem, mockConfig)
@@ -72,6 +86,22 @@ class DataControllerTests : ControllerTest()
 
         verify(fileSystem, times(1)).writeFileToOutputStream("root/data/csv/$hash.csv", mockOutputStream)
     }
+
+    @Test
+    fun `can't download data for unauthorized report`()
+    {
+        val name = "testname"
+
+        val actionContext = mock<ActionContext> {
+            on { this.params(":name") } doReturn name
+            on { this.permissions } doReturn permissionSetForSingleReport
+        }
+
+        val sut = DataController(actionContext, mock(), mock(), mockConfig)
+
+        assertThrowsMissingPermissionError(name, { sut.downloadData() })
+    }
+
 
     @Test
     fun `gets rds data file for report by name`()
@@ -95,6 +125,7 @@ class DataControllerTests : ControllerTest()
             on { this.params(":version") } doReturn version
             on { this.params(":data") } doReturn datumname
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetGlobal
             on { this.queryParams("type") } doReturn "rds"
         }
 
@@ -116,6 +147,7 @@ class DataControllerTests : ControllerTest()
 
         val actionContext = mock<ActionContext> {
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetGlobal
             on { this.params(":id") } doReturn hash
         }
 
@@ -123,6 +155,21 @@ class DataControllerTests : ControllerTest()
         sut.downloadCSV()
 
         verify(fileSystem, times(1)).writeFileToOutputStream("root/data/csv/$hash.csv", mockOutputStream)
+    }
+
+    @Test
+    fun `can't download csv for unauthorized report`()
+    {
+        val hash = "hjkdasjkldas6762i1j"
+
+        val actionContext = mock<ActionContext> {
+            on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetForSingleReport
+            on { this.params(":id") } doReturn hash
+        }
+
+        val sut = DataController(actionContext, mock<OrderlyClient>(), mock(), mockConfig)
+        assertThrowsMissingPermissionError(reportName, { sut.downloadCSV() })
     }
 
     @Test
@@ -137,6 +184,7 @@ class DataControllerTests : ControllerTest()
 
         val actionContext = mock<ActionContext> {
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetGlobal
             on { this.params(":id") } doReturn hash
         }
 
@@ -144,6 +192,21 @@ class DataControllerTests : ControllerTest()
         sut.downloadRDS()
 
         verify(fileSystem, times(1)).writeFileToOutputStream("root/data/rds/$hash.rds", mockOutputStream)
+    }
+
+    @Test
+    fun `can't download rds for unauthorized report`()
+    {
+        val hash = "hjkdasjkldas6762i1j"
+
+        val actionContext = mock<ActionContext> {
+            on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetForSingleReport
+            on { this.params(":id") } doReturn hash
+        }
+
+        val sut = DataController(actionContext, mock<OrderlyClient>(), mock(), mockConfig)
+        assertThrowsMissingPermissionError(reportName, { sut.downloadRDS() })
     }
 
     @Test
@@ -161,6 +224,7 @@ class DataControllerTests : ControllerTest()
         val actionContext = mock<ActionContext> {
             on { this.params(":name") } doReturn name
             on { this.params(":version") } doReturn version
+            on { this.permissions } doReturn permissionSetGlobal
         }
 
         val sut = DataController(actionContext, orderly, mock<FileSystem>(), mockConfig)
@@ -185,6 +249,7 @@ class DataControllerTests : ControllerTest()
             on { this.params(":data") } doReturn data
             on { this.queryParams("type") } doReturn "csv"
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetGlobal
         }
 
         val sut = DataController(actionContext, orderly, mock<FileSystem>(), mockConfig)

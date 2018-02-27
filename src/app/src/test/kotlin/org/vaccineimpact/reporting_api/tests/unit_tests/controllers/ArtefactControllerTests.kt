@@ -19,18 +19,6 @@ import org.vaccineimpact.reporting_api.errors.UnknownObjectError
 
 class ArtefactControllerTests : ControllerTest()
 {
-    private val mockConfig = mock<Config> {
-        on { this.get("orderly.root") } doReturn "root/"
-    }
-
-    private val reportName = "report1"
-
-    private val permissionSetForSingleReport = PermissionSet(
-            setOf(ReifiedPermission("reports.read", Scope.Specific("report", reportName))))
-
-    private val permissionSetGlobal = PermissionSet(
-            setOf(ReifiedPermission("reports.read", Scope.Global())))
-
     @Test
     fun `gets artefacts for report`()
     {
