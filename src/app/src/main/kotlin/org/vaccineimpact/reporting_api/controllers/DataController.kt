@@ -29,7 +29,6 @@ class DataController(context: ActionContext,
 
     fun downloadCSV(): Boolean
     {
-        context.authorizedReport()
         val id = context.params(":id")
         val absoluteFilePath = "${this.config["orderly.root"]}data/csv/$id.csv"
 
@@ -38,7 +37,6 @@ class DataController(context: ActionContext,
 
     fun downloadRDS(): Boolean
     {
-        context.authorizedReport()
         val id = context.params(":id")
         val absoluteFilePath = "${this.config["orderly.root"]}data/rds/$id.rds"
 
