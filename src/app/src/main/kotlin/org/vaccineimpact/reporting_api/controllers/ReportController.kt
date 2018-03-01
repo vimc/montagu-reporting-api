@@ -52,25 +52,30 @@ class ReportController(context: ActionContext,
 
     fun getAllNames(): List<Report>
     {
+        if (!reportReadingScopes.any())
+        {
+            throw MissingRequiredPermissionError(setOf(ReifiedPermission("reports.read", Scope.Global())))
+        }
+
         val reports = orderly.getAllReports()
         return reports.filter { context.reportReadingScopes().encompass(Scope.Specific("report", it.name)) }
     }
 
     fun getVersionsByName(): List<String>
     {
-        val name = context.authorizedReport()
+        val name = context.params(":name")
         return orderly.getReportsByName(name)
     }
 
     fun getByNameAndVersion(): JsonObject
     {
-        val name = context.authorizedReport()
+        val name = context.params(":name")
         return orderly.getReportsByNameAndVersion(name, context.params(":version"))
     }
 
     fun getZippedByNameAndVersion(): Boolean
     {
-        val name = context.authorizedReport()
+        val name = context.params(":name")
         val version = context.params(":version")
         val response = context.getSparkResponse().raw()
 

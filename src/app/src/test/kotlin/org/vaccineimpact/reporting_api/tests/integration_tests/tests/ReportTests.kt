@@ -6,6 +6,7 @@ import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
 import org.vaccineimpact.reporting_api.db.JooqContext
 import org.vaccineimpact.reporting_api.db.Tables
+import org.vaccineimpact.reporting_api.security.InternalUser
 import org.vaccineimpact.reporting_api.tests.insertReport
 
 class ReportTests : IntegrationTest()
@@ -90,14 +91,34 @@ class ReportTests : IntegrationTest()
     }
 
     @Test
-    fun `can get report versions by name`()
+    fun `can get report versions by name with global report reading permissions`()
     {
         insertReport("testname", "testversion")
-        val response = requestHelper.get("/reports/testname")
+        val response = requestHelper.get("/reports/testname", user = requestHelper.fakeGlobalReportReader)
 
         assertSuccessful(response)
         assertJsonContentType(response)
         JSONValidator.validateAgainstSchema(response.text, "Versions")
+    }
+
+    @Test
+    fun `can get report versions by name with specific report reading permissions`()
+    {
+        insertReport("testname", "testversion")
+        val response = requestHelper.get("/reports/testname", user = InternalUser("testusername", "user", "*/can-login,report:testname/reports.read"))
+
+        assertSuccessful(response)
+        assertJsonContentType(response)
+        JSONValidator.validateAgainstSchema(response.text, "Versions")
+    }
+
+    @Test
+    fun `get report versions throws 403 if user not authorized to read report`()
+    {
+        insertReport("testname", "testversion")
+        val response = requestHelper.get("/reports/testname", user = requestHelper.fakeSingleReportReader)
+
+        assertUnauthorized(response, "testname")
     }
 
     @Test
@@ -112,15 +133,35 @@ class ReportTests : IntegrationTest()
     }
 
     @Test
-    fun `can get report by name and version`()
+    fun `can get report by name and version with global permissionss`()
     {
         insertReport("testname", "testversion")
-        val response = requestHelper.get("/reports/testname/versions/testversion")
+        val response = requestHelper.get("/reports/testname/versions/testversion",
+                user = requestHelper.fakeGlobalReportReader)
         assertSuccessful(response)
         assertJsonContentType(response)
         JSONValidator.validateAgainstSchema(response.text, "Version")
     }
 
+    @Test
+    fun `can get report by name and version with scoped permission`()
+    {
+        insertReport("testname", "testversion")
+        val response = requestHelper.get("/reports/testname/versions/testversion",
+                user = InternalUser("testusername", "user", "*/can-login,report:testname/reports.read"))
+        assertSuccessful(response)
+        assertJsonContentType(response)
+        JSONValidator.validateAgainstSchema(response.text, "Version")
+    }
+
+    @Test
+    fun `get by name and version returns 403 if user is unauthorized`()
+    {
+        insertReport("testname", "testversion")
+        val response = requestHelper.get("/reports/testname/versions/testversion",
+                user = requestHelper.fakeSingleReportReader)
+        assertUnauthorized(response, "testname")
+    }
 
     @Test
     fun `reviewer can get unpublished report by name and version`()
@@ -161,6 +202,20 @@ class ReportTests : IntegrationTest()
     }
 
     @Test
+    fun `gets zip file with scoped permissions`()
+    {
+        insertReport("testname", "testversion")
+
+        val response = requestHelper.get("/reports/testname/versions/testversion/all/", contentType = ContentTypes.zip,
+                user = InternalUser("testusername", "user", "*/can-login,report:testname/reports.read"))
+
+        assertSuccessful(response)
+        assertThat(response.headers["content-type"]).isEqualTo("application/zip")
+        assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=testname/testversion.zip")
+    }
+
+
+    @Test
     fun `gets zip file with bearer token`()
     {
         insertReport("testname", "testversion")
@@ -174,7 +229,7 @@ class ReportTests : IntegrationTest()
     }
 
     @Test
-    fun `returns 401 if access token is missing`()
+    fun `get zip returns 401 if access token is missing`()
     {
         insertReport("testname", "testversion")
         val response = requestHelper.getNoAuth("/reports/testname/versions/testversion/all", contentType = ContentTypes.zip)
@@ -184,7 +239,7 @@ class ReportTests : IntegrationTest()
     }
 
     @Test
-    fun `returns 403 if wrong report reading permissions`()
+    fun `get zip returns 403 if wrong report reading permissions`()
     {
         insertReport("testname", "testversion")
         val response = requestHelper.get("/reports/testname/versions/testversion/all",
