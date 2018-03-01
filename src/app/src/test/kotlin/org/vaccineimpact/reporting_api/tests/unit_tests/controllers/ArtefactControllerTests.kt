@@ -7,6 +7,9 @@ import com.nhaarman.mockito_kotlin.mock
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
+import org.vaccineimpact.api.models.Scope
+import org.vaccineimpact.api.models.permissions.PermissionSet
+import org.vaccineimpact.api.models.permissions.ReifiedPermission
 import org.vaccineimpact.reporting_api.ActionContext
 import org.vaccineimpact.reporting_api.FileSystem
 import org.vaccineimpact.reporting_api.controllers.ArtefactController
@@ -16,25 +19,21 @@ import org.vaccineimpact.reporting_api.errors.UnknownObjectError
 
 class ArtefactControllerTests : ControllerTest()
 {
-    private val mockConfig = mock<Config> {
-        on { this.get("orderly.root") } doReturn "root/"
-    }
-
     @Test
     fun `gets artefacts for report`()
     {
-        val name = "testname"
         val version = "testversion"
 
         val artefacts = JsonParser().parse("{ \"test.png\" : \"hjkdasjkldas6762i1j\"}")
 
         val orderly = mock<OrderlyClient> {
-            on { this.getArtefacts(name, version) } doReturn artefacts.asJsonObject
+            on { this.getArtefacts(reportName, version) } doReturn artefacts.asJsonObject
         }
 
         val actionContext = mock<ActionContext> {
-            on { this.params(":name") } doReturn name
+            on { this.params(":name") } doReturn reportName
             on { this.params(":version") } doReturn version
+            on { this.permissions } doReturn permissionSetForSingleReport
         }
 
         val sut = ArtefactController(actionContext, orderly, mock<FileSystem>(), mockConfig)
@@ -43,21 +42,63 @@ class ArtefactControllerTests : ControllerTest()
     }
 
     @Test
-    fun `downloads artefact for report`()
+    fun `can't get artefact for report if not authorized`()
     {
         val name = "testname"
+        val version = "testversion"
+
+        val actionContext = mock<ActionContext> {
+            on { this.params(":name") } doReturn name
+            on { this.params(":version") } doReturn version
+            on { this.permissions } doReturn permissionSetForSingleReport
+        }
+
+        val sut = ArtefactController(actionContext, mock(), mock<FileSystem>(), mockConfig)
+
+        assertThrowsMissingPermissionError(name, { sut.get() })
+    }
+
+    @Test
+    fun `downloads artefact for report`()
+    {
         val version = "testversion"
         val artefact = "testartefact"
 
         val orderly = mock<OrderlyClient> {
-            on { this.getArtefact(name, version, artefact) } doReturn ""
+            on { this.getArtefact(reportName, version, artefact) } doReturn ""
         }
+
+        val actionContext = mock<ActionContext> {
+            on { this.params(":name") } doReturn reportName
+            on { this.params(":version") } doReturn version
+            on { this.params(":artefact") } doReturn artefact
+            on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetForSingleReport
+        }
+
+
+        val fileSystem = mock<FileSystem>() {
+            on { this.fileExists("root/archive/$reportName/$version/$artefact") } doReturn true
+        }
+
+        val sut = ArtefactController(actionContext, orderly, fileSystem, mockConfig)
+
+        sut.download()
+    }
+
+    @Test
+    fun `can't download artefact for report if unauthorized`()
+    {
+        val name = "anothername"
+        val version = "testversion"
+        val artefact = "testartefact"
 
         val actionContext = mock<ActionContext> {
             on { this.params(":name") } doReturn name
             on { this.params(":version") } doReturn version
             on { this.params(":artefact") } doReturn artefact
             on { this.getSparkResponse() } doReturn mockSparkResponse
+            on { this.permissions } doReturn permissionSetForSingleReport
         }
 
 
@@ -65,9 +106,9 @@ class ArtefactControllerTests : ControllerTest()
             on { this.fileExists("root/archive/$name/$version/$artefact") } doReturn true
         }
 
-        val sut = ArtefactController(actionContext, orderly, fileSystem, mockConfig)
+        val sut = ArtefactController(actionContext, mock(), fileSystem, mockConfig)
 
-        sut.download()
+        assertThrowsMissingPermissionError(name, { sut.download() })
     }
 
     @Test
@@ -85,6 +126,7 @@ class ArtefactControllerTests : ControllerTest()
             on { this.params(":name") } doReturn name
             on { this.params(":version") } doReturn version
             on { this.params(":artefact") } doReturn artefact
+            on { this.permissions } doReturn permissionSetGlobal
         }
 
         val sut = ArtefactController(actionContext, orderly, mock<FileSystem>(), mockConfig)

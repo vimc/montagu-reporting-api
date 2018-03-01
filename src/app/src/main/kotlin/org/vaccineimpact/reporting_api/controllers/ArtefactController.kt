@@ -26,12 +26,13 @@ class ArtefactController(context: ActionContext,
 
     fun get(): JsonObject
     {
-        return orderly.getArtefacts(context.params(":name"), context.params(":version"))
+        val name = context.authorizedReport()
+        return orderly.getArtefacts(name, context.params(":version"))
     }
 
     fun download(): Boolean
     {
-        val name = context.params(":name")
+        val name = context.authorizedReport()
         val version = context.params(":version")
         val artefactname = parseRouteParamToFilepath(context.params(":artefact"))
         val inline = context.queryParams("inline")?.toBoolean() ?: false

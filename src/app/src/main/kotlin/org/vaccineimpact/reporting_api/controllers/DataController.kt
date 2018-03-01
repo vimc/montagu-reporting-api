@@ -3,10 +3,7 @@ package org.vaccineimpact.reporting_api.controllers
 import com.google.gson.JsonObject
 import org.vaccineimpact.api.models.Scope
 import org.vaccineimpact.api.models.permissions.ReifiedPermission
-import org.vaccineimpact.reporting_api.ActionContext
-import org.vaccineimpact.reporting_api.ContentTypes
-import org.vaccineimpact.reporting_api.FileSystem
-import org.vaccineimpact.reporting_api.Files
+import org.vaccineimpact.reporting_api.*
 import org.vaccineimpact.reporting_api.db.AppConfig
 import org.vaccineimpact.reporting_api.db.Config
 import org.vaccineimpact.reporting_api.db.Orderly
@@ -26,7 +23,8 @@ class DataController(context: ActionContext,
 
     fun get(): JsonObject
     {
-        return orderly.getData(context.params(":name"), context.params(":version"))
+        val name = context.authorizedReport()
+        return orderly.getData(name, context.params(":version"))
     }
 
     fun downloadCSV(): Boolean
@@ -47,7 +45,7 @@ class DataController(context: ActionContext,
 
     fun downloadData(): Boolean
     {
-        val name = context.params(":name")
+        val name = context.authorizedReport()
         val version = context.params(":version")
         val id = context.params(":data")
         var type = context.queryParams("type")
