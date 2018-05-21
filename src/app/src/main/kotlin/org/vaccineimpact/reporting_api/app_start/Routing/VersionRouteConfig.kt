@@ -20,44 +20,35 @@ object VersionRouteConfig : RouteConfig
     override val endpoints = listOf(
             Endpoint("/reports/:name/versions/:version/", reportController, "getByNameAndVersion")
                     .json()
-                    .transform()
-                    .secure(readReports),
+                    .transform(),
 
             Endpoint("/reports/:name/versions/:version/all/", reportController, "getZippedByNameAndVersion",
                     ContentTypes.zip)
-                    .allowParameterAuthentication()
-                    .secure(readReports),
+                    .allowParameterAuthentication(),
 
             Endpoint("/reports/:name/versions/:version/publish/", reportController, "publish",
                     method = HttpMethod.post)
-                    .json()
-                    .secure(reviewReports),
+                    .json(),
 
             Endpoint("/reports/:name/versions/:version/artefacts/", artefactController, "get")
                     .json()
-                    .transform()
-                    .secure(readReports),
+                    .transform(),
 
             Endpoint("/reports/:name/versions/:version/artefacts/:artefact/", artefactController, "download")
-                    .secure(readReports)
                     .allowParameterAuthentication(),
 
             Endpoint("/reports/:name/versions/:version/resources/", resourceController, "get")
                     .json()
-                    .transform()
-                    .secure(readReports),
+                    .transform(),
 
             Endpoint("/reports/:name/versions/:version/resources/:resource/", resourceController, "download")
-                    .secure(readReports)
                     .allowParameterAuthentication(),
 
             Endpoint("/reports/:name/versions/:version/data/", dataController, "get")
                     .json()
-                    .transform()
-                    .secure(readReports),
+                    .transform(),
 
             Endpoint("/reports/:name/versions/:version/data/:data/", dataController, "downloadData")
-                    .secure(readReports)
                     .allowParameterAuthentication()
     )
 }

@@ -11,7 +11,6 @@ object HomeRouteConfig : RouteConfig
 
             Endpoint("/onetime_token/", OnetimeTokenController::class, "get")
                     .json()
-                    .secure()
                     .transform(),
 
             Endpoint("/", HomeController::class, "index")

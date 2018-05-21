@@ -20,7 +20,7 @@ class ArtefactController(context: ActionContext,
 {
     constructor(context: ActionContext) :
             this(context,
-                    Orderly(context.hasPermission(ReifiedPermission("reports.review", Scope.Global()))),
+                    Orderly(isReviewer = true),//context.hasPermission(ReifiedPermission("reports.review", Scope.Global()))),
                     Files(),
                     AppConfig())
 

@@ -5,7 +5,6 @@ import org.vaccineimpact.reporting_api.EndpointDefinition
 import org.vaccineimpact.reporting_api.app_start.RouteConfig
 import org.vaccineimpact.reporting_api.controllers.GitController
 import org.vaccineimpact.reporting_api.json
-import org.vaccineimpact.reporting_api.secure
 import spark.route.HttpMethod
 
 object GitRouteConfig : RouteConfig {
@@ -14,16 +13,13 @@ object GitRouteConfig : RouteConfig {
 
     override val endpoints: List<EndpointDefinition> = listOf(
             Endpoint("/reports/git/status/", controller, "status")
-                    .json()
-                    .secure(runReports),
+                    .json(),
 
             Endpoint("/reports/git/pull/", controller, "pull", method = HttpMethod.post)
-                    .json()
-                    .secure(runReports),
+                    .json(),
 
             Endpoint("/reports/git/fetch/", controller, "fetch", method = HttpMethod.post)
                     .json()
-                    .secure(runReports)
     )
 
 }
