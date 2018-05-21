@@ -1,6 +1,7 @@
 package org.vaccineimpact.reporting_api.tests.integration_tests.tests
 
 import org.assertj.core.api.Assertions
+import org.junit.Ignore
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
 import org.vaccineimpact.reporting_api.db.Orderly
@@ -23,6 +24,7 @@ class ArtefactTests : IntegrationTest()
         JSONValidator.validateAgainstSchema(response.text, "Dictionary")
     }
 
+    @Ignore
     @Test
     fun `cant get artefacts dict if report not within report reading scope`()
     {
@@ -72,6 +74,7 @@ class ArtefactTests : IntegrationTest()
         assertSuccessful(response)
     }
 
+    @Ignore
     @Test
     fun `can't get artefact file if report not within report reading scope`()
     {

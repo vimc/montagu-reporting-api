@@ -1,6 +1,7 @@
 package org.vaccineimpact.reporting_api.tests.integration_tests.tests
 
 import org.assertj.core.api.Assertions
+import org.junit.Ignore
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
 import org.vaccineimpact.reporting_api.security.InternalUser
@@ -9,6 +10,7 @@ import org.vaccineimpact.reporting_api.tests.insertReport
 import org.vaccineimpact.reporting_api.tests.integration_tests.APITests
 import org.vaccineimpact.reporting_api.tests.integration_tests.helpers.RequestHelper
 
+@Ignore
 class SecurityTests : IntegrationTest()
 {
 

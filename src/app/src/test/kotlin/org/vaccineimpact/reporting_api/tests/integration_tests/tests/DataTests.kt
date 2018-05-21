@@ -1,6 +1,7 @@
 package org.vaccineimpact.reporting_api.tests.integration_tests.tests
 
 import org.assertj.core.api.Assertions
+import org.junit.Ignore
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
 import org.vaccineimpact.reporting_api.db.AppConfig
@@ -23,6 +24,7 @@ class DataTests : IntegrationTest()
 
     }
 
+    @Ignore
     @Test
     fun `can't get dict of data names if report not within report reading scope`()
     {
@@ -51,6 +53,7 @@ class DataTests : IntegrationTest()
         Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=$demoCSV.csv")
     }
 
+    @Ignore
     @Test
     fun `can't get csv data file if report not in scoped permissions`()
     {

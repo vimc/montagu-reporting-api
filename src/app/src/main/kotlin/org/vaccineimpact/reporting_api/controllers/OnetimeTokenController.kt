@@ -14,21 +14,21 @@ class OnetimeTokenController(context: ActionContext,
 
     fun get(): String
     {
-        val url = context.queryParams("url")
-                ?: throw MissingParameterError("url")
+//        val url = context.queryParams("url")
+//                ?: throw MissingParameterError("url")
+//
+//        val profile = context.userProfile
+//
+//        val username = profile.id
+//        val permissions = profile.getAttribute("permissions").toString()
+//        val roles = profile.getAttribute("roles").toString()
+//
+//        val user = InternalUser(username, roles, permissions)
+//        val issuer = WebTokenHelper.oneTimeTokenHelper.issuer
+//        val token = issuer.generateOnetimeActionToken(user, url)
+//
+//        tokenStore.storeToken(token)
 
-        val profile = context.userProfile
-
-        val username = profile.id
-        val permissions = profile.getAttribute("permissions").toString()
-        val roles = profile.getAttribute("roles").toString()
-
-        val user = InternalUser(username, roles, permissions)
-        val issuer = WebTokenHelper.oneTimeTokenHelper.issuer
-        val token = issuer.generateOnetimeActionToken(user, url)
-
-        tokenStore.storeToken(token)
-
-        return token
+        return ""
     }
 }

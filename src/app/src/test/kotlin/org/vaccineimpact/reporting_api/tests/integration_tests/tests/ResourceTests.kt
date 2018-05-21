@@ -1,6 +1,7 @@
 package org.vaccineimpact.reporting_api.tests.integration_tests.tests
 
 import org.assertj.core.api.Assertions
+import org.junit.Ignore
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
 import org.vaccineimpact.reporting_api.db.AppConfig
@@ -45,6 +46,7 @@ class ResourceTests : IntegrationTest()
 
     }
 
+    @Ignore
     @Test
     fun `can't get resource file if report not in scoped permissions`()
     {
@@ -73,6 +75,7 @@ class ResourceTests : IntegrationTest()
         JSONValidator.validateError(response.text, "unknown-resource", "Unknown resource : '$fakeresource'")
     }
 
+    @Ignore
     @Test
     fun `gets 401 if missing access token`()
     {
