@@ -22,7 +22,7 @@ class ReportController(context: ActionContext,
 {
     constructor(context: ActionContext) :
             this(context,
-                    Orderly(context.hasPermission(ReifiedPermission("reports.review", Scope.Global()))),
+                    Orderly(isReviewer = true),//context.hasPermission(ReifiedPermission("reports.review", Scope.Global()))),
                     Zip(),
                     OrderlyServer(AppConfig(), KHttpClient()),
                     AppConfig())
@@ -52,13 +52,13 @@ class ReportController(context: ActionContext,
 
     fun getAllReports(): List<Report>
     {
-        if (!reportReadingScopes.any())
-        {
-            throw MissingRequiredPermissionError(PermissionSet("*/reports.read"))
-        }
+//        if (!reportReadingScopes.any())
+//        {
+//            throw MissingRequiredPermissionError(PermissionSet("*/reports.read"))
+//        }
 
         val reports = orderly.getAllReports()
-        return reports.filter { reportReadingScopes.encompass(Scope.Specific("report", it.name)) }
+        return reports//.filter { reportReadingScopes.encompass(Scope.Specific("report", it.name)) }
     }
 
     fun getVersionsByName(): List<String>
@@ -89,8 +89,8 @@ class ReportController(context: ActionContext,
         return true
     }
 
-    private val reportReadingScopes = context.permissions
-            .filter { it.name == "reports.read" }
-            .map { it.scope }
+//    private val reportReadingScopes = context.permissions
+//            .filter { it.name == "reports.read" }
+//            .map { it.scope }
 
 }
