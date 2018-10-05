@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.vaccineimpact.reporting_api.db.Orderly
 import org.vaccineimpact.reporting_api.tests.insertReport
-import java.time.Instant
 
 class OrderlyReviewerTests : DatabaseTests()
 {
@@ -100,7 +99,7 @@ class OrderlyReviewerTests : DatabaseTests()
 
         val sut = createSut()
 
-        val result = sut.getReportsByNameAndVersion("test", "version1")
+        val result = sut.getReportVersionDetails("test", "version1")
 
         assertThat(result.has("name")).isTrue()
         assertThat(result.has("id")).isTrue()
@@ -120,7 +119,7 @@ class OrderlyReviewerTests : DatabaseTests()
 
         val sut = createSut()
 
-        val results = sut.getReportsByName("test")
+        val results = sut.getVersionIDsForReportByName("test")
 
         assertThat(results.count()).isEqualTo(3)
         assertThat(results[0]).isEqualTo("version1")

@@ -24,7 +24,7 @@ object VersionRouteConfig : RouteConfig
                     // more specific permission checking in the controller action
                     .secure(),
 
-            Endpoint("/reports/:name/versions/:version/", reportController, "getByNameAndVersion")
+            Endpoint("/reports/:name/versions/:version/", reportController, "getReportVersionDetails")
                     .json()
                     .transform()
                     .secure(readReports),

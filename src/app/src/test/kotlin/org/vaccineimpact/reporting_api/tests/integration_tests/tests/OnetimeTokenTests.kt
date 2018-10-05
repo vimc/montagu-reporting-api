@@ -27,7 +27,7 @@ class OnetimeTokenTests : IntegrationTest()
     @Test
     fun `can use one time token to authenticate`()
     {
-        val publishedVersion = Orderly().getReportsByName("other")[0]
+        val publishedVersion = Orderly().getVersionIDsForReportByName("other")[0]
         val url = "/reports/other/versions/$publishedVersion/artefacts/graph.png/"
 
         val tokenReponse = requestHelper.get("/onetime_token/?url=" + URLEncoder.encode("/v1$url", "UTF-8"))
@@ -44,7 +44,7 @@ class OnetimeTokenTests : IntegrationTest()
     @Test
     fun `can use one time token to authenticate endpoint with query string`()
     {
-        val publishedVersion = Orderly().getReportsByName("other")[0]
+        val publishedVersion = Orderly().getVersionIDsForReportByName("other")[0]
         val url = "/reports/other/versions/$publishedVersion/artefacts/graph.png/?query=whatever"
 
         val tokenReponse = requestHelper.get("/onetime_token/?url=" + URLEncoder.encode("/v1$url", "UTF-8"))

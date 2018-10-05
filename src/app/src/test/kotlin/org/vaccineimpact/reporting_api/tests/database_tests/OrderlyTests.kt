@@ -100,7 +100,7 @@ class OrderlyTests : DatabaseTests()
 
         val sut = createSut()
 
-        val result = sut.getReportsByNameAndVersion("test", "version1")
+        val result = sut.getReportVersionDetails("test", "version1")
 
         assertThat(result.has("name")).isTrue()
         assertThat(result.has("id")).isTrue()
@@ -117,7 +117,7 @@ class OrderlyTests : DatabaseTests()
 
         val sut = createSut()
 
-        assertThatThrownBy { sut.getReportsByNameAndVersion("test", "version1") }
+        assertThatThrownBy { sut.getReportVersionDetails("test", "version1") }
                 .isInstanceOf(UnknownObjectError::class.java)
     }
 
@@ -130,7 +130,7 @@ class OrderlyTests : DatabaseTests()
 
         val sut = createSut()
 
-        assertThatThrownBy { sut.getReportsByNameAndVersion("test", "dsajkdsj") }
+        assertThatThrownBy { sut.getReportVersionDetails("test", "dsajkdsj") }
                 .isInstanceOf(UnknownObjectError::class.java)
     }
 
@@ -142,7 +142,7 @@ class OrderlyTests : DatabaseTests()
 
         val sut = createSut()
 
-        assertThatThrownBy { sut.getReportsByNameAndVersion("dsajkdsj", "version") }
+        assertThatThrownBy { sut.getReportVersionDetails("dsajkdsj", "version") }
                 .isInstanceOf(UnknownObjectError::class.java)
 
     }
@@ -157,7 +157,7 @@ class OrderlyTests : DatabaseTests()
 
         val sut = createSut()
 
-        val results = sut.getReportsByName("test")
+        val results = sut.getVersionIDsForReportByName("test")
 
         assertThat(results.count()).isEqualTo(2)
         assertThat(results[0]).isEqualTo("version1")

@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Ignore
 import org.junit.Test
-import org.vaccineimpact.api.models.Report
+import org.vaccineimpact.api.models.reports.Report
 import org.vaccineimpact.api.models.Scope
 import org.vaccineimpact.api.models.permissions.PermissionSet
 import org.vaccineimpact.api.models.permissions.ReifiedPermission
@@ -135,7 +135,7 @@ class ReportControllerTests : ControllerTest()
         val reportVersions = listOf("version1", "version2")
 
         val orderly = mock<OrderlyClient> {
-            on { this.getReportsByName(reportName) } doReturn reportVersions
+            on { this.getVersionIDsForReportByName(reportName) } doReturn reportVersions
         }
 
         val mockContext = mock<ActionContext> {
@@ -159,7 +159,7 @@ class ReportControllerTests : ControllerTest()
         val report = JsonParser().parse("{\"key\":\"value\"}")
 
         val orderly = mock<OrderlyClient> {
-            on { this.getReportsByNameAndVersion(reportName, reportVersion) } doReturn report.asJsonObject
+            on { this.getReportVersionDetails(reportName, reportVersion) } doReturn report.asJsonObject
         }
 
         val actionContext = mock<ActionContext> {
@@ -172,7 +172,7 @@ class ReportControllerTests : ControllerTest()
                 mock<OrderlyServerAPI>(),
                 mockConfig)
 
-        assertThat(sut.getByNameAndVersion()).isEqualTo(report)
+        assertThat(sut.getReportVersionDetails()).isEqualTo(report)
     }
 
     @Test

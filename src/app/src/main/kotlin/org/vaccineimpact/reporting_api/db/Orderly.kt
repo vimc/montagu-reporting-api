@@ -3,9 +3,10 @@ package org.vaccineimpact.reporting_api.db
 import com.google.gson.*
 import org.jooq.TableField
 import org.jooq.impl.DSL.*
-import org.vaccineimpact.api.models.Report
-import org.vaccineimpact.api.models.ReportVersion
-import org.vaccineimpact.reporting_api.db.Tables.ORDERLY
+import org.vaccineimpact.api.models.reports.Report
+import org.vaccineimpact.api.models.reports.ReportVersion
+import org.vaccineimpact.api.models.reports.ReportVersionDetails
+import org.vaccineimpact.reporting_api.db.Tables.REPORT_VERSION
 import org.vaccineimpact.reporting_api.db.tables.records.OrderlyRecord
 import org.vaccineimpact.reporting_api.errors.UnknownObjectError
 import java.sql.Timestamp
@@ -17,38 +18,38 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
         JooqContext().use {
             // create a temp table containing the latest version ID for each report name
             val latestVersionForEachReport = it.dsl.select(
-                    ORDERLY.NAME,
-                    ORDERLY.ID.`as`("latestVersion"),
-                    ORDERLY.DATE.max().`as`("maxDate")
+                    REPORT_VERSION.REPORT,
+                    REPORT_VERSION.ID.`as`("latestVersion"),
+                    REPORT_VERSION.DATE.max().`as`("maxDate")
             )
-                    .from(ORDERLY)
+                    .from(REPORT_VERSION)
                     .where(shouldInclude)
-                    .groupBy(ORDERLY.NAME)
+                    .groupBy(REPORT_VERSION.REPORT)
                     .asTemporaryTable(name = "latest_version_for_each_report")
 
             // join with all the versions to get full details of each report + version alongside
             // the latest version ID for that report
             return it.dsl.withTemporaryTable(latestVersionForEachReport)
-                    .select(ORDERLY.NAME,
-                            ORDERLY.DISPLAYNAME,
-                            ORDERLY.ID,
-                            ORDERLY.PUBLISHED,
-                            ORDERLY.DATE.`as`("updatedOn"),
-                            ORDERLY.AUTHOR,
-                            ORDERLY.REQUESTER,
-                            latestVersionForEachReport.field<String>("latestVersion"))
-                    .from(ORDERLY)
+                    .select(REPORT_VERSION.REPORT,
+                            REPORT_VERSION.DISPLAYNAME,
+                            REPORT_VERSION.ID,
+                            REPORT_VERSION.PUBLISHED,
+                            REPORT_VERSION.DATE.`as`("updatedOn"),
+                            REPORT_VERSION.AUTHOR,
+                            REPORT_VERSION.REQUESTER,
+                            latestVersionForEachReport.field("latestVersion"))
+                    .from(REPORT_VERSION)
                     .join(latestVersionForEachReport.tableName)
-                    .on(ORDERLY.NAME.eq(latestVersionForEachReport.field("name")))
+                    .on(REPORT_VERSION.REPORT.eq(latestVersionForEachReport.field("name")))
                     .where(shouldInclude)
-                    .orderBy(ORDERLY.NAME, ORDERLY.ID)
+                    .orderBy(REPORT_VERSION.REPORT, REPORT_VERSION.ID)
                     .fetchInto(ReportVersion::class.java)
         }
     }
 
     private val gsonParser = JsonParser()
 
-    private val shouldInclude = ORDERLY.PUBLISHED.bitOr(isReviewer)
+    private val shouldInclude = REPORT_VERSION.PUBLISHED.bitOr(isReviewer)
 
     override fun getAllReports(): List<Report>
     {
@@ -56,36 +57,36 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
 
             val tempTable = "all"
 
-            val allReports = it.dsl.select(ORDERLY.NAME,
-                    ORDERLY.DATE.max().`as`("maxDate"))
-                    .from(ORDERLY)
+            val allReports = it.dsl.select(REPORT_VERSION.REPORT,
+                    REPORT_VERSION.DATE.max().`as`("maxDate"))
+                    .from(REPORT_VERSION)
                     .where(shouldInclude)
-                    .groupBy(ORDERLY.NAME)
+                    .groupBy(REPORT_VERSION.REPORT)
 
             return it.dsl.with(tempTable).`as`(allReports)
-                    .select(ORDERLY.NAME, ORDERLY.DISPLAYNAME,
-                            ORDERLY.ID.`as`("latestVersion"),
-                            ORDERLY.PUBLISHED,
-                            ORDERLY.DATE.`as`("updatedOn"),
-                            ORDERLY.AUTHOR,
-                            ORDERLY.REQUESTER)
-                    .from(ORDERLY)
+                    .select(REPORT_VERSION.REPORT, REPORT_VERSION.DISPLAYNAME,
+                            REPORT_VERSION.ID.`as`("latestVersion"),
+                            REPORT_VERSION.PUBLISHED,
+                            REPORT_VERSION.DATE.`as`("updatedOn"),
+                            REPORT_VERSION.AUTHOR,
+                            REPORT_VERSION.REQUESTER)
+                    .from(REPORT_VERSION)
                     .join(table(name(tempTable)))
-                    .on(ORDERLY.NAME.eq(field(name(tempTable, "name"), String::class.java))
-                            .and(ORDERLY.DATE.eq(field(name(tempTable, "maxDate"), Timestamp::class.java))))
+                    .on(REPORT_VERSION.REPORT.eq(field(name(tempTable, "name"), String::class.java))
+                            .and(REPORT_VERSION.DATE.eq(field(name(tempTable, "maxDate"), Timestamp::class.java))))
                     .where(shouldInclude)
                     .fetchInto(Report::class.java)
         }
 
     }
 
-    override fun getReportsByName(name: String): List<String>
+    override fun getVersionIDsForReportByName(name: String): List<String>
     {
         JooqContext().use {
 
-            val result = it.dsl.select(ORDERLY.ID)
-                    .from(ORDERLY)
-                    .where(ORDERLY.NAME.eq(name)
+            val result = it.dsl.select(REPORT_VERSION.ID)
+                    .from(REPORT_VERSION)
+                    .where(REPORT_VERSION.REPORT.eq(name)
                             .and(shouldInclude))
 
             if (result.count() == 0)
@@ -99,47 +100,18 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
         }
     }
 
-    override fun getReportsByNameAndVersion(name: String, version: String): JsonObject
+    override fun getReportVersionDetails(name: String, version: String): ReportVersionDetails
     {
-        JooqContext().use {
+        return JooqContext().use {
 
-            val result = it.dsl.select()
-                    .from(ORDERLY)
-                    .where(ORDERLY.NAME.eq(name)
-                            .and((ORDERLY.ID).eq(version))
+            val v = it.dsl.select()
+                    .from(REPORT_VERSION)
+                    .where(REPORT_VERSION.REPORT.eq(name)
+                            .and((REPORT_VERSION.ID).eq(version))
                             .and(shouldInclude))
-                    .fetchAny() ?: throw UnknownObjectError("$name-$version", "reportVersion")
-
-            val obj = JsonObject()
-
-            for (field in result.fields())
-            {
-
-                val value = result.get(field)
-
-                val valAsJson = if (value != null)
-                {
-                    val valueString = value.toString()
-
-                    try
-                    {
-                        gsonParser.parse(valueString)
-                    }
-                    catch (e: JsonParseException)
-                    {
-                        JsonPrimitive(valueString)
-                    }
-                }
-                else
-                {
-                    JsonNull.INSTANCE
-                }
-
-                obj.add(field.name, valAsJson)
-
-            }
-
-            return obj
+                    .fetchAnyInto(ReportVersion::class.java)
+                    ?: throw UnknownObjectError("$name-$version", "reportVersion")
+            ReportVersionDetails()
         }
 
     }
