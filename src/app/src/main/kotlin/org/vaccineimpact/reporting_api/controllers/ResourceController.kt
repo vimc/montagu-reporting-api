@@ -8,6 +8,7 @@ import org.vaccineimpact.reporting_api.db.Config
 import org.vaccineimpact.reporting_api.db.Orderly
 import org.vaccineimpact.reporting_api.db.OrderlyClient
 import org.vaccineimpact.reporting_api.errors.OrderlyFileNotFoundError
+import java.net.URLDecoder
 
 class ResourceController(context: ActionContext,
                          private val orderly: OrderlyClient,
@@ -29,7 +30,7 @@ class ResourceController(context: ActionContext,
     {
         val name = context.params(":name")
         val version = context.params(":version")
-        val resourcename = parseRouteParamToFilepath(context.params(":resource"))
+        val resourcename = URLDecoder.decode(parseRouteParamToFilepath(context.params(":resource")))
 
         orderly.getResourceHash(name, version, resourcename)
 

@@ -3,7 +3,6 @@ package org.vaccineimpact.reporting_api
 import spark.Filter
 import spark.Request
 import spark.Response
-import java.net.URLDecoder
 import javax.servlet.http.HttpServletResponse
 
 // The idea is that as this file grows, I'll group helpers and split them off into files/classes with more
@@ -30,5 +29,5 @@ class DefaultHeadersFilter(val contentType: String) : Filter
 
 fun parseRouteParamToFilepath(routeParam: String): String
 {
-    return URLDecoder.decode(routeParam.replace(":", "/"))
+    return routeParam.replace(":", "/")
 }
