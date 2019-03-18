@@ -4,6 +4,7 @@ import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ActionContext
@@ -69,6 +70,8 @@ class ResourceControllerTests : ControllerTest()
         val sut = ResourceController(actionContext, orderly, fileSystem, mockConfig)
 
         sut.download()
+
+        verify(actionContext).addResponseHeader("Content-Disposition", "attachment; filename=\"testname/testversion/testresource\"")
     }
 
     @Test
