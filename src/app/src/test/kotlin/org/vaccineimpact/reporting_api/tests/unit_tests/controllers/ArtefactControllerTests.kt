@@ -4,6 +4,7 @@ import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
@@ -68,6 +69,8 @@ class ArtefactControllerTests : ControllerTest()
         val sut = ArtefactController(actionContext, orderly, fileSystem, mockConfig)
 
         sut.download()
+
+        verify(actionContext).addResponseHeader("Content-Disposition", "attachment; filename=\"testname/testversion/testartefact\"")
     }
 
     @Test

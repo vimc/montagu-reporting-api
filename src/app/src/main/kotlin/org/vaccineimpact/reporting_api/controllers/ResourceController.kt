@@ -1,7 +1,6 @@
 package org.vaccineimpact.reporting_api.controllers
 
 import com.google.gson.JsonObject
-import java.net.URLDecoder
 import org.vaccineimpact.api.models.Scope
 import org.vaccineimpact.api.models.permissions.ReifiedPermission
 import org.vaccineimpact.reporting_api.*
@@ -31,7 +30,7 @@ class ResourceController(context: ActionContext,
     {
         val name = context.params(":name")
         val version = context.params(":version")
-        val resourcename = URLDecoder.decode(parseRouteParamToFilepath(context.params(":resource")))
+        val resourcename = parseRouteParamToFilepath(context.params(":resource"))
 
         orderly.getResourceHash(name, version, resourcename)
 

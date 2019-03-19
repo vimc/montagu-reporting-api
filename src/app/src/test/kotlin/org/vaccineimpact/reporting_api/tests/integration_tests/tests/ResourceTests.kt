@@ -55,7 +55,6 @@ class ResourceTests : IntegrationTest()
         val resourceEncoded = "a+resource+with+spaces.csv"
         val url = "/reports/spaces/versions/$version/resources/$resourceEncoded/"
 
-
         val testresponse = requestHelper.get("/reports/spaces/versions/$version/", user = requestHelper.fakeReviewer)
 
         assertSuccessful(testresponse)
