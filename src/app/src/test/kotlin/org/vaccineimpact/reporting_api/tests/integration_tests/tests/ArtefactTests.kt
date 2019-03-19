@@ -3,11 +3,13 @@ package org.vaccineimpact.reporting_api.tests.integration_tests.tests
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import org.vaccineimpact.reporting_api.ContentTypes
+import org.vaccineimpact.reporting_api.db.AppConfig
 import org.vaccineimpact.reporting_api.db.Orderly
 import org.vaccineimpact.reporting_api.security.InternalUser
 import org.vaccineimpact.reporting_api.security.WebTokenHelper
 import org.vaccineimpact.reporting_api.tests.insertArtefact
 import org.vaccineimpact.reporting_api.tests.insertReport
+import java.io.File
 
 class ArtefactTests : IntegrationTest()
 {
@@ -45,7 +47,7 @@ class ArtefactTests : IntegrationTest()
 
         assertSuccessful(response)
         Assertions.assertThat(response.headers["content-type"]).isEqualTo("image/png")
-        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=other/$publishedVersion/graph.png")
+        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=\"other/$publishedVersion/graph.png\"")
     }
 
     @Test
@@ -58,7 +60,7 @@ class ArtefactTests : IntegrationTest()
 
         assertSuccessful(response)
         Assertions.assertThat(response.headers["content-type"]).isEqualTo("image/png")
-        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=other/$publishedVersion/graph.png")
+        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=\"other/$publishedVersion/graph.png\"")
     }
 
     @Test
@@ -71,7 +73,20 @@ class ArtefactTests : IntegrationTest()
 
         assertSuccessful(response)
         Assertions.assertThat(response.headers["content-type"]).isEqualTo("image/png")
-        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=other/$publishedVersion/graph.png")
+        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=\"other/$publishedVersion/graph.png\"")
+    }
+
+    @Test
+    fun `gets artefact file with space in name`()
+    {
+        val version = File("${AppConfig()["orderly.root"]}/archive/spaces/").list()[0]
+
+        val url = "/reports/spaces/versions/$version/artefacts/a+graph+with+spaces.png/"
+        val response = requestHelper.get(url, ContentTypes.binarydata, user = requestHelper.fakeReviewer)
+
+        assertSuccessful(response)
+        Assertions.assertThat(response.headers["content-type"]).isEqualTo("image/png")
+        Assertions.assertThat(response.headers["content-disposition"]).isEqualTo("attachment; filename=\"spaces/$version/a graph with spaces.png\"")
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.mock
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import com.nhaarman.mockito_kotlin.verify
 import org.vaccineimpact.reporting_api.ActionContext
 import org.vaccineimpact.reporting_api.FileSystem
 import org.vaccineimpact.reporting_api.controllers.ResourceController
@@ -69,6 +70,7 @@ class ResourceControllerTests : ControllerTest()
         val sut = ResourceController(actionContext, orderly, fileSystem, mockConfig)
 
         sut.download()
+        verify(actionContext).addResponseHeader("Content-Disposition", "attachment; filename=\"testname/testversion/testresource\"")
     }
 
     @Test
