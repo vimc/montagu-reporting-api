@@ -1,12 +1,9 @@
 package org.vaccineimpact.reporting_api.db
 
-import com.google.gson.*
-import org.jooq.TableField
 import org.jooq.impl.DSL.select
 import org.jooq.impl.DSL.trueCondition
 import org.vaccineimpact.api.models.*
 import org.vaccineimpact.reporting_api.db.Tables.*
-import org.vaccineimpact.reporting_api.db.tables.records.OrderlyRecord
 import org.vaccineimpact.reporting_api.db.tables.records.ReportVersionRecord
 import org.vaccineimpact.reporting_api.errors.UnknownObjectError
 import java.sql.Timestamp
@@ -104,82 +101,25 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
         }
     }
 
-    override fun getReportByNameAndVersion(name: String, version: String): JsonObject
-    {
-        JooqContext().use {
-
-            val result = it.dsl.select()
-                    .from(ORDERLY)
-                    .where(ORDERLY.NAME.eq(name)
-                            .and((ORDERLY.ID).eq(version))
-                            .and(shouldInclude))
-                    .fetchAny() ?: throw UnknownObjectError("$name-$version", "reportVersion")
-
-            val obj = JsonObject()
-
-            for (field in result.fields())
-            {
-
-                val value = result.get(field)
-
-                val valAsJson = if (value != null)
-                {
-                    val valueString = value.toString()
-
-                    try
-                    {
-                        gsonParser.parse(valueString)
-                    }
-                    catch (e: JsonParseException)
-                    {
-                        JsonPrimitive(valueString)
-                    }
-                }
-                else
-                {
-                    JsonNull.INSTANCE
-                }
-
-                obj.add(field.name, valAsJson)
-
-            }
-
-            return obj
-        }
-
-    }
-
-    ///This is a temporary location for logic accessing the new Orderly schema, until it is completed and replaces
-    ///GetReportByNameAndVersion above
     override fun getDetailsByNameAndVersion(name: String, version: String): ReportVersionDetails
     {
         JooqContext().use {
 
             val reportVersionResult = getReportVersion(name, version, it)
+            val aretefacts = getArtefacts(name, version)
 
-            //get script
-            val scriptResult = it.dsl.selectFrom(FILE_INPUT)
-                    .where(FILE_INPUT.REPORT_VERSION.eq(version))
-                    .and(FILE_INPUT.FILE_PURPOSE.eq("script"))
-                    .singleOrNull()
-
-
-            val result = ReportVersionDetails(id = reportVersionResult.id,
+            return ReportVersionDetails(id = reportVersionResult.id,
                     name = reportVersionResult.report,
                     displayName = reportVersionResult.displayname,
                     author = reportVersionResult.author,
-                    comment = reportVersionResult.comment,
                     date = reportVersionResult.date.toInstant(),
                     description = reportVersionResult.description,
                     published = reportVersionResult.published,
                     requester = reportVersionResult.requester,
-                    script = scriptResult?.filename,
-                    hashScript = scriptResult?.fileHash)
-
-            return result
-
+                    artefacts = aretefacts,
+                    resources = getResourceHashes(name, version).keys.toList(),
+                    dataHashes = getData(name, version))
         }
-
     }
 
     override fun getArtefactHashes(name: String, version: String): Map<String, String>
@@ -202,17 +142,24 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
                 ?: throw UnknownObjectError(filename, "Artefact")
     }
 
-    override fun getData(name: String, version: String): JsonObject
+    override fun getData(name: String, version: String): Map<String, String>
     {
-        return getSimpleMap(name, version, ORDERLY.HASH_DATA)
+        JooqContext().use {
+            getReportVersion(name, version, it)
+            return it.dsl.select(
+                    REPORT_VERSION_DATA.NAME,
+                    REPORT_VERSION_DATA.HASH)
+                    .from(REPORT_VERSION_DATA)
+                    .where(REPORT_VERSION_DATA.REPORT_VERSION.eq(version))
+                    .fetch()
+                    .associate { it[REPORT_VERSION_DATA.NAME] to it[REPORT_VERSION_DATA.HASH] }
+        }
     }
 
     override fun getDatum(name: String, version: String, datumname: String): String
     {
-        val result = getSimpleMap(name, version, ORDERLY.HASH_DATA)[datumname]
-                ?: throw UnknownObjectError(datumname, "Data")
-
-        return result.asString
+        val data = getData(name, version)
+        return data[datumname] ?: throw UnknownObjectError(datumname, "Data")
     }
 
     override fun getResourceHashes(name: String, version: String): Map<String, String>
@@ -266,6 +213,12 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
 
     }
 
+    override fun checkVersionExistsForReport(name: String, version: String) {
+        JooqContext().use {
+            getReportVersion(name, version, it)
+        }
+    }
+
     private fun getReportVersion(name: String, version: String, ctx: JooqContext): ReportVersionRecord
     {
         //raise exception if version does not belong to named report, or version does not exist
@@ -307,29 +260,6 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
                 .orderBy(CHANGELOG.ID.desc())
                 .fetchInto(Changelog::class.java)
     }
-
-
-    private fun getSimpleMap(name: String, version: String, column: TableField<OrderlyRecord, String>): JsonObject
-    {
-        JooqContext().use {
-            val result = it.dsl.select(column)
-                    .from(ORDERLY)
-                    .where(ORDERLY.NAME.eq(name).and((ORDERLY.ID).eq(version))
-                            .and(shouldInclude))
-                    .fetchAny() ?: throw UnknownObjectError("$name-$version", "reportVersion")
-
-            if (result.value1() == null)
-                return JsonObject()
-
-            return gsonParser.parse(result
-                    .into(String::class.java))
-                    .asJsonObject
-        }
-    }
-
-    private val gsonParser = JsonParser()
-
-    private val shouldInclude = ORDERLY.PUBLISHED.bitOr(isReviewer)
 
     // shouldInclude for the relational schema
     private val shouldIncludeReportVersion = REPORT_VERSION.PUBLISHED.bitOr(isReviewer)

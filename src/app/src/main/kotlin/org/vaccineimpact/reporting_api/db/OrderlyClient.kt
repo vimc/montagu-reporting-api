@@ -16,7 +16,7 @@ interface OrderlyClient
     fun getReportsByName(name: String): List<String>
 
     @Throws(UnknownObjectError::class)
-    fun getReportByNameAndVersion(name: String, version: String): JsonObject
+    fun checkVersionExistsForReport(name: String, version: String)
 
     @Throws(UnknownObjectError::class)
     fun getDetailsByNameAndVersion(name: String, version: String): ReportVersionDetails
@@ -34,7 +34,7 @@ interface OrderlyClient
     fun getArtefactHash(name: String, version: String, filename: String): String
 
     @Throws(UnknownObjectError::class)
-    fun getData(name: String, version: String): JsonObject
+    fun getData(name: String, version: String): Map<String, String>
 
     @Throws(UnknownObjectError::class)
     fun getDatum(name: String, version: String, datumname: String): String
