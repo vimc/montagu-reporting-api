@@ -1,19 +1,11 @@
-FROM openjdk:8u121-jdk
+FROM docker.montagu.dide.ic.ac.uk:5000/node-docker:master
 
-# Install docker
+# Install OpenJDK
+RUN echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/sources.list.d/stretch-backports.list
 RUN apt-get update
-RUN apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        software-properties-common
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-RUN add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/debian \
-   $(lsb_release -cs) \
-   stable"
-RUN apt-get update
-RUN apt-get install -y docker-ce=17.03.0~ce-0~debian-jessie
+RUN apt-get install -t stretch-backports -y \
+    openjdk-8-jdk
+RUN rm /etc/apt/sources.list.d/stretch-backports.list
 
 # Setup gradle
 COPY src/gradlew /api/src/
@@ -30,4 +22,5 @@ RUN ./gradlew
 
 # Copy source
 COPY . /api
+
 
