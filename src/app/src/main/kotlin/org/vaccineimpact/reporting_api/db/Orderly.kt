@@ -257,7 +257,7 @@ class Orderly(isReviewer: Boolean = false) : OrderlyClient
                 .where(REPORT_VERSION.REPORT.eq(report))
                 .and(REPORT_VERSION.DATE.lessOrEqual(latestDate))
                 .and(shouldIncludeChangelogItem)
-                .orderBy(CHANGELOG.ID.desc())
+                .orderBy(CHANGELOG.ORDERING.desc())
                 .fetchInto(Changelog::class.java)
     }
 

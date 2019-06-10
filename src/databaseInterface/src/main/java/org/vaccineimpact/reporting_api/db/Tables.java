@@ -9,6 +9,7 @@ import javax.annotation.Generated;
 import org.vaccineimpact.reporting_api.db.tables.ArtefactFormat;
 import org.vaccineimpact.reporting_api.db.tables.Changelog;
 import org.vaccineimpact.reporting_api.db.tables.ChangelogLabel;
+import org.vaccineimpact.reporting_api.db.tables.CustomFields;
 import org.vaccineimpact.reporting_api.db.tables.Data;
 import org.vaccineimpact.reporting_api.db.tables.Depends;
 import org.vaccineimpact.reporting_api.db.tables.File;
@@ -22,6 +23,7 @@ import org.vaccineimpact.reporting_api.db.tables.ParametersType;
 import org.vaccineimpact.reporting_api.db.tables.Report;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersion;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionArtefact;
+import org.vaccineimpact.reporting_api.db.tables.ReportVersionCustomFields;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionData;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionPackage;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionView;
@@ -54,6 +56,11 @@ public class Tables {
      * The table <code>changelog_label</code>.
      */
     public static final ChangelogLabel CHANGELOG_LABEL = org.vaccineimpact.reporting_api.db.tables.ChangelogLabel.CHANGELOG_LABEL;
+
+    /**
+     * The table <code>custom_fields</code>.
+     */
+    public static final CustomFields CUSTOM_FIELDS = org.vaccineimpact.reporting_api.db.tables.CustomFields.CUSTOM_FIELDS;
 
     /**
      * The table <code>data</code>.
@@ -119,6 +126,11 @@ public class Tables {
      * The table <code>report_version_artefact</code>.
      */
     public static final ReportVersionArtefact REPORT_VERSION_ARTEFACT = org.vaccineimpact.reporting_api.db.tables.ReportVersionArtefact.REPORT_VERSION_ARTEFACT;
+
+    /**
+     * The table <code>report_version_custom_fields</code>.
+     */
+    public static final ReportVersionCustomFields REPORT_VERSION_CUSTOM_FIELDS = org.vaccineimpact.reporting_api.db.tables.ReportVersionCustomFields.REPORT_VERSION_CUSTOM_FIELDS;
 
     /**
      * The table <code>report_version_data</code>.

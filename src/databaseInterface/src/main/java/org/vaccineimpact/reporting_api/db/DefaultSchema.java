@@ -16,6 +16,7 @@ import org.jooq.impl.SchemaImpl;
 import org.vaccineimpact.reporting_api.db.tables.ArtefactFormat;
 import org.vaccineimpact.reporting_api.db.tables.Changelog;
 import org.vaccineimpact.reporting_api.db.tables.ChangelogLabel;
+import org.vaccineimpact.reporting_api.db.tables.CustomFields;
 import org.vaccineimpact.reporting_api.db.tables.Data;
 import org.vaccineimpact.reporting_api.db.tables.Depends;
 import org.vaccineimpact.reporting_api.db.tables.File;
@@ -29,6 +30,7 @@ import org.vaccineimpact.reporting_api.db.tables.ParametersType;
 import org.vaccineimpact.reporting_api.db.tables.Report;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersion;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionArtefact;
+import org.vaccineimpact.reporting_api.db.tables.ReportVersionCustomFields;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionData;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionPackage;
 import org.vaccineimpact.reporting_api.db.tables.ReportVersionView;
@@ -47,7 +49,7 @@ import org.vaccineimpact.reporting_api.db.tables.ReportVersionView;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultSchema extends SchemaImpl {
 
-    private static final long serialVersionUID = -857464804;
+    private static final long serialVersionUID = -533479954;
 
     /**
      * The reference instance of <code></code>
@@ -68,6 +70,11 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>changelog_label</code>.
      */
     public final ChangelogLabel CHANGELOG_LABEL = org.vaccineimpact.reporting_api.db.tables.ChangelogLabel.CHANGELOG_LABEL;
+
+    /**
+     * The table <code>custom_fields</code>.
+     */
+    public final CustomFields CUSTOM_FIELDS = org.vaccineimpact.reporting_api.db.tables.CustomFields.CUSTOM_FIELDS;
 
     /**
      * The table <code>data</code>.
@@ -135,6 +142,11 @@ public class DefaultSchema extends SchemaImpl {
     public final ReportVersionArtefact REPORT_VERSION_ARTEFACT = org.vaccineimpact.reporting_api.db.tables.ReportVersionArtefact.REPORT_VERSION_ARTEFACT;
 
     /**
+     * The table <code>report_version_custom_fields</code>.
+     */
+    public final ReportVersionCustomFields REPORT_VERSION_CUSTOM_FIELDS = org.vaccineimpact.reporting_api.db.tables.ReportVersionCustomFields.REPORT_VERSION_CUSTOM_FIELDS;
+
+    /**
      * The table <code>report_version_data</code>.
      */
     public final ReportVersionData REPORT_VERSION_DATA = org.vaccineimpact.reporting_api.db.tables.ReportVersionData.REPORT_VERSION_DATA;
@@ -177,6 +189,7 @@ public class DefaultSchema extends SchemaImpl {
             ArtefactFormat.ARTEFACT_FORMAT,
             Changelog.CHANGELOG,
             ChangelogLabel.CHANGELOG_LABEL,
+            CustomFields.CUSTOM_FIELDS,
             Data.DATA,
             Depends.DEPENDS,
             File.FILE,
@@ -190,6 +203,7 @@ public class DefaultSchema extends SchemaImpl {
             Report.REPORT,
             ReportVersion.REPORT_VERSION,
             ReportVersionArtefact.REPORT_VERSION_ARTEFACT,
+            ReportVersionCustomFields.REPORT_VERSION_CUSTOM_FIELDS,
             ReportVersionData.REPORT_VERSION_DATA,
             ReportVersionPackage.REPORT_VERSION_PACKAGE,
             ReportVersionView.REPORT_VERSION_VIEW);
