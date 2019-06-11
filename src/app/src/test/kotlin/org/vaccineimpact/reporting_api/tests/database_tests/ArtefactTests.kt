@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import org.vaccineimpact.reporting_api.db.Orderly
 import org.vaccineimpact.reporting_api.errors.UnknownObjectError
+import org.vaccineimpact.reporting_api.tests.InsertableChangelog
 import org.vaccineimpact.reporting_api.tests.insertArtefact
 import org.vaccineimpact.reporting_api.tests.insertReport
 
@@ -73,6 +74,7 @@ class ArtefactTests : CleanDatabaseTests()
     {
         insertReport("test", "version1")
         insertReport("test", "version2")
+
         insertArtefact("version1", fileNames = listOf("summary.csv", "graph.png"))
         insertArtefact("version2", fileNames = listOf("image.gif"))
         val sut = createSut()
