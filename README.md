@@ -1,3 +1,6 @@
+# DEPRECATED
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 # Montagu Reporting API
 
 See [spec.md](/src/app/src/test/resources/spec/spec.md) for the full API specification.
